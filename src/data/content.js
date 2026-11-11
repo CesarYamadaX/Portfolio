@@ -57,7 +57,6 @@ export const PROJECTS = [
     note: 'AT&T · Elektra · Telcel · Movistar · Liverpool · Coppel · Sears · Suburbia · Mercado Libre',
     stack: ['Python', 'Selenium', 'BeautifulSoup', 'requests', 'Scrapling', 'pandas', 'Web dashboard'],
     links: [
-      { label: 'Dashboard repo', url: 'https://github.com/CesarYamadaX/Pricing_Dashboard-' },
       { label: 'Scraping repo', url: 'https://github.com/CesarYamadaX/Scrapping' },
     ],
     media: 'pricing',
