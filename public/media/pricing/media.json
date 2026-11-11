@@ -1,6 +1,5 @@
 {
   "items": [
-    { "src": "placeholder-1.jpg", "type": "image", "caption": "Placeholder: pricing dashboard overview" },
-    { "src": "placeholder-2.jpg", "type": "image", "caption": "Placeholder: scraping suite run across retailers" }
+    { "src": "dashboard.webm", "type": "video", "poster": "dashboard-poster.jpg", "caption": "Pricing dashboard: discount alerts, minimum prices by retailer, and the price trend of one model" }
   ]
 }

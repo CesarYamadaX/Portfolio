@@ -1,7 +1,7 @@
 # César Yamada — space portfolio
 
 A single-page portfolio you travel through by scrolling: a hero planet, an orbiting
-station (About), three project planets with moons, skill constellations, and a landing
+station (About), three project planets, skill constellations, and a landing
 scene (Contact).
 
 Built with Vite, React, Three.js (React Three Fiber, drei, postprocessing) and GSAP
@@ -54,7 +54,7 @@ Each project has a folder in `public/media/` and a `media.json` manifest in it:
 
 | Project | Folder |
 | --- | --- |
-| Competitive Pricing Intelligence | `public/media/pricing/` |
+| Competitive Pricing Analysis | `public/media/pricing/` |
 | Honor WhatsApp AI Assistant | `public/media/whatsapp/` |
 | Pfizer Clustering Project | `public/media/pfizer/` |
 
@@ -78,16 +78,15 @@ Each project has a folder in `public/media/` and a `media.json` manifest in it:
 
 What happens with the list:
 
-- The **first item** is mapped onto the planet's face. If it is a video, it plays muted and
-  looping while the camera is near the planet (desktop only); otherwise its poster is shown.
+- Planets show their own surface until one is opened. Zooming in fades the selected gallery item
+  onto the planet's face: a video plays muted and looping (desktop only); otherwise its poster is shown.
 - All items appear in the detail panel's gallery when the planet is opened. Videos start muted
   and looping, and show controls after a click; images open in a zoomable full-screen viewer.
 - An empty list (`"items": []`) is fine: the planet shows its own surface and the panel says
-  there is no media yet. The Pfizer project ships this way.
+  there is no media yet.
 
 Recommendations: 16:10 or 16:9 media, videos as `.webm` or `.mp4` under about 5 MB and
-10–20 seconds, posters as `.jpg` around 1280 px wide. The `placeholder-*.jpg` files are stand-ins;
-delete them once real media is in place.
+10–20 seconds, posters as `.jpg` around 1280 px wide.
 
 ## Edit the content
 
@@ -105,7 +104,7 @@ src/
   data/content.js       All copy and layout data
   scene/
     Experience.jsx      Canvas, sky, stars, sun, camera rig, post-processing
-    Bodies.jsx          Atmosphere shader, hero planet, station, moons, landing planet
+    Bodies.jsx          Atmosphere shader, hero planet, station, landing planet
     ProjectPlanet.jsx   Project planets and their lazy image/video face
     Constellations.jsx  Skill constellations
   ui/

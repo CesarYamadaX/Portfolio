@@ -5,7 +5,7 @@ import { PerformanceMonitor, useProgress, useTexture } from '@react-three/drei'
 import { Bloom, EffectComposer, GodRays, Noise, Vignette } from '@react-three/postprocessing'
 import { PROJECTS, PROJECT_VIEW, SUN_DIRECTION, WAYPOINTS } from '../data/content.js'
 import { scrollState, useStore } from '../state.js'
-import { HeroPlanet, Landing, Moons, Station } from './Bodies.jsx'
+import { HeroPlanet, Landing, Station } from './Bodies.jsx'
 import ProjectPlanet from './ProjectPlanet.jsx'
 import Constellations from './Constellations.jsx'
 
@@ -187,7 +187,6 @@ export default function Experience({ mobile, media }) {
         {PROJECTS.map((p) => (
           <ProjectPlanet key={p.id} project={p} items={media[p.id] || []} mobile={mobile} segments={segments} />
         ))}
-        <Moons />
         {/* on phones the skills are an HTML list; the 3D chart would sit right under the text */}
         {!mobile && <Constellations mobile={mobile} />}
         <Landing mobile={mobile} />

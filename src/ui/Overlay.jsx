@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { MOONS, OWNER, PROJECTS, SECTIONS, SKILLS } from '../data/content.js'
+import { OWNER, PROJECTS, SECTIONS, SKILLS } from '../data/content.js'
 import { scrollState, useStore } from '../state.js'
 
 const Icon = {
@@ -63,9 +63,17 @@ export function Nav() {
       const y = window.scrollY + window.innerHeight * 0.4
       setCurrent(Math.max(0, tops.findLastIndex((t) => y >= t)))
     }
-    onScroll()
+    // measure after the first layout too (section offsets are all 0 before styles apply), and on resize
+    const frame = requestAnimationFrame(onScroll)
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    window.addEventListener('resize', onScroll)
+    window.addEventListener('load', onScroll)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      window.removeEventListener('load', onScroll)
+    }
   }, [])
 
   return (
@@ -147,9 +155,10 @@ export function Sections({ media }) {
           <div>
             <p className="eyebrow">System 02 · Projects</p>
             <h2 tabIndex={-1}>Each world is its project</h2>
-            <p className="muted">The project's media is mapped onto the planet. Hover to preview, click to zoom in.</p>
+            <p className="muted">Click a planet to zoom in and watch the project's recording play on its surface.</p>
           </div>
-          {/* Keyboard- and touch-friendly way to open the same panels as clicking a planet */}
+          {/* Same panels as clicking a planet. Hidden until a button gets keyboard focus, so nothing covers
+              the planets; always visible in the static (reduced motion) page, which has no planets. */}
           <div className="project-list">
             <ul>
               {PROJECTS.map((p) => (
@@ -162,14 +171,6 @@ export function Sections({ media }) {
                 </li>
               ))}
             </ul>
-            <p className="moons">
-              <span className="label">Moons</span>
-              {MOONS.map((m) => (
-                <a key={m.name} href={m.url} target="_blank" rel="noopener noreferrer" title={m.about}>
-                  {m.name}
-                </a>
-              ))}
-            </p>
           </div>
         </div>
       </section>
@@ -223,7 +224,7 @@ export function Sections({ media }) {
   )
 }
 
-/** Follows the pointer and describes the hovered planet or moon. */
+/** Follows the pointer and describes the hovered planet. */
 export function Tooltip() {
   const hovered = useStore((s) => s.hovered)
   const selected = useStore((s) => s.selected)
@@ -244,14 +245,13 @@ export function Tooltip() {
   }, [hovered])
 
   if (!hovered || selected || scrollState.progress < 0.3) return null
-  const moon = hovered.startsWith('moon:') && MOONS.find((m) => `moon:${m.name}` === hovered)
   const project = PROJECTS.find((p) => p.id === hovered)
-  if (!moon && !project) return null
+  if (!project) return null
   return (
     <div ref={ref} className="tooltip" role="tooltip">
-      <strong>{moon ? moon.name : project.name}</strong>
-      <span>{moon ? moon.about : project.short}</span>
-      <em>{moon ? 'Click to open on GitHub' : 'Click to zoom in'}</em>
+      <strong>{project.name}</strong>
+      <span>{project.short}</span>
+      <em>Click to zoom in</em>
     </div>
   )
 }

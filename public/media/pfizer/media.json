@@ -1,3 +1,5 @@
 {
-  "items": []
+  "items": [
+    { "src": "analysis.webm", "type": "video", "poster": "analysis-poster.jpg", "caption": "Figures from the team's analysis: segments, profiles, trends, correlations and the classifier's confusion matrix" }
+  ]
 }

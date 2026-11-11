@@ -49,7 +49,7 @@ export const PROJECT_VIEW = [0, 1, -108]
 export const PROJECTS = [
   {
     id: 'pricing',
-    name: 'Competitive Pricing Intelligence',
+    name: 'Competitive Pricing Analysis',
     subtitle: 'Pricing Dashboard + Market Scraping MX',
     short: 'Dashboard on price history scraped from 9 Mexican retailers and carriers.',
     description:
@@ -98,12 +98,6 @@ export const PROJECTS = [
   },
 ]
 
-// Small moons for secondary repos; each orbits one project planet.
-export const MOONS = [
-  { name: 'foundation-management-system', about: 'Web app for a foundation supporting the deaf community in Mexico', url: 'https://github.com/CesarYamadaX/foundation-management-system', orbits: 'pricing', distance: 6.6, radius: 0.5, speed: 0.12, phase: 0.6 },
-  { name: 'Minigames', about: 'Browser minigames', url: 'https://github.com/CesarYamadaX/Minigames', orbits: 'whatsapp', distance: 5.2, radius: 0.38, speed: 0.17, phase: 2.4 },
-  { name: 'simple-chess-engine', about: 'A simple chess engine', url: 'https://github.com/CesarYamadaX/simple-chess-engine', orbits: 'pfizer', distance: 5.0, radius: 0.44, speed: 0.14, phase: 4.3 },
-]
 
 // Constellations: star coordinates are in a 1440x900 layout space (same as the design),
 // converted to world units in Constellations.jsx.
