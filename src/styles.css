@@ -102,8 +102,7 @@ h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 
 .project-list button:hover { border-color: var(--accent); }
 .project-list strong { font-family: var(--font-display); font-size: 15px; line-height: 1.25; }
 .project-list span, .project-list small { font-size: 12px; color: var(--text-2); }
-.moons { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; font-size: 13px; }
-.moons a { min-height: 44px; display: inline-flex; align-items: center; }
+.journey:not(.journey--static) .project-list:not(:focus-within) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* Skills: on desktop the constellations carry the text, so the list is visually hidden there */
 .stop--skills .stop__inner { justify-content: flex-start; }

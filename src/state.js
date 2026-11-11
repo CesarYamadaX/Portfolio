@@ -6,7 +6,7 @@ export const scrollState = { progress: 0 } // 0..1 across the whole journey (dri
 
 export const useStore = create((set) => ({
   selected: null, // id of the project whose panel is open
-  hovered: null, // id of the hovered planet, or "moon:<name>"
+  hovered: null, // id of the hovered planet
   mediaIndex: 0, // which media item of the selected project is showing
   audioOn: false,
   loading: { progress: 0, done: false },

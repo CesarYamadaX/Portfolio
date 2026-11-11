@@ -2,8 +2,7 @@ import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
-import { HERO_PLANET, LANDING, MOONS, PROJECTS, STATION_POSITION, SUN_DIRECTION } from '../data/content.js'
-import { useStore } from '../state.js'
+import { HERO_PLANET, LANDING, STATION_POSITION, SUN_DIRECTION } from '../data/content.js'
 
 const SUN = new THREE.Vector3(...SUN_DIRECTION).normalize()
 const srgb = (t) => {
@@ -173,38 +172,6 @@ export function Station() {
   )
 }
 
-function Moon({ moon }) {
-  const ref = useRef()
-  const map = useTexture('/textures/moon.jpg', srgb)
-  const hover = useStore((s) => s.hover)
-  const center = PROJECTS.find((p) => p.id === moon.orbits).position
-  useDistanceFade(ref, 92, 56, center)
-  useFrame(({ clock }) => {
-    const a = clock.elapsedTime * moon.speed + moon.phase
-    ref.current.position.set(
-      center[0] + Math.cos(a) * moon.distance,
-      center[1] + Math.sin(a * 0.7) * moon.distance * 0.25,
-      center[2] + Math.sin(a) * moon.distance,
-    )
-    ref.current.rotation.y = a * 0.6
-  })
-  return (
-    <mesh
-      ref={ref}
-      onPointerOver={(e) => (e.stopPropagation(), hover(`moon:${moon.name}`))}
-      onPointerOut={() => hover(null)}
-      onClick={(e) => (e.stopPropagation(), window.open(moon.url, '_blank', 'noopener'))}
-    >
-      <sphereGeometry args={[moon.radius, 24, 24]} />
-      <meshStandardMaterial map={map} roughness={1} />
-    </mesh>
-  )
-}
-
-export function Moons() {
-  return MOONS.map((m) => <Moon key={m.name} moon={m} />)
-}
-
 /** The world we land on at the end: a large sphere seen from low orbit. */
 export function Landing({ mobile }) {
   const map = useTexture(mobile ? '/textures/planet-pricing.jpg' : '/textures/planet-landing.jpg', srgb)
@@ -214,10 +181,13 @@ export function Landing({ mobile }) {
   useFrame((_, dt) => (ref.current.rotation.y += dt * 0.004))
   return (
     <group ref={group} position={LANDING.position}>
-      <mesh ref={ref} rotation={[0.4, 0, 0]}>
-        <sphereGeometry args={[LANDING.radius, mobile ? 64 : 128, mobile ? 64 : 128]} />
-        <meshStandardMaterial map={map} roughness={0.9} />
-      </mesh>
+      {/* tip the planet on its side: otherwise its white polar cap is exactly what the camera lands over */}
+      <group rotation={[0, 0, Math.PI / 2]}>
+        <mesh ref={ref}>
+          <sphereGeometry args={[LANDING.radius, mobile ? 64 : 128, mobile ? 64 : 128]} />
+          <meshStandardMaterial map={map} roughness={0.9} />
+        </mesh>
+      </group>
       <Atmosphere radius={LANDING.radius} color={LANDING.atmosphere} scale={1.03} />
     </group>
   )

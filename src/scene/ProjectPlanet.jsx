@@ -88,15 +88,17 @@ export default function ProjectPlanet({ project, items, mobile, segments }) {
   const hover = useStore((s) => s.hover)
   const select = useStore((s) => s.select)
   const [near, setNear] = useState(false)
+  const reveal = useRef(0) // 0 = plain planet, 1 = recording fully shown (only while zoomed in)
   useDistanceFade(group, 92, 56)
 
   const base = useTexture(project.texture, (t) => {
     t.colorSpace = THREE.SRGBColorSpace
     t.anisotropy = 4
   })
-  // At rest the planet shows the first item; with the panel open it follows the gallery.
+  // At rest the planet shows only its own surface. Zooming in reveals the recording, which then
+  // follows the gallery. The poster is fetched on approach so the reveal has no loading gap.
   const item = items.length ? items[selected ? Math.min(mediaIndex, items.length - 1) : 0] : null
-  const texture = useMediaTexture(item, near || selected, !mobile)
+  const texture = useMediaTexture(item, near || selected, selected && !mobile)
   const active = hovered || selected
   const r = project.radius
 
@@ -106,9 +108,12 @@ export default function ProjectPlanet({ project, items, mobile, segments }) {
   useFrame(({ camera }, dt) => {
     const isNear = camera.position.distanceTo(group.current.position) < NEAR_DISTANCE
     if (isNear !== near) setNear(isNear)
+    reveal.current += ((selected ? 1 : 0) - reveal.current) * Math.min(1, dt * 2.5)
     if (patchMaterial.current) {
+      patchMaterial.current.userData.baseOpacity = reveal.current // useDistanceFade multiplies this in
       const c = patchMaterial.current.color
-      c.setScalar(c.r + ((active ? 1.12 : 0.82) - c.r) * Math.min(1, dt * 5))
+      // kept under the bloom threshold: a light-themed screen recording would otherwise burn out to white
+      c.setScalar(c.r + ((active ? 0.66 : 0.56) - c.r) * Math.min(1, dt * 5))
     }
   })
 
@@ -128,7 +133,12 @@ export default function ProjectPlanet({ project, items, mobile, segments }) {
         <mesh>
           {/* +Z is phi = PI/2 on a three.js sphere, so the patch is centred there */}
           <sphereGeometry args={[r * 1.004, 48, 32, Math.PI / 2 - PATCH_W / 2, PATCH_W, Math.PI / 2 - PATCH_H / 2, PATCH_H]} />
-          <meshBasicMaterial ref={patchMaterial} key={texture.uuid} map={texture} alphaMap={feather} transparent toneMapped={false} color={[0.82, 0.82, 0.82]} />
+          <meshBasicMaterial
+            ref={(m) => {
+              patchMaterial.current = m
+              if (m) m.userData.baseOpacity = reveal.current // a swapped-in video starts at the current reveal
+            }}
+            key={texture.uuid} map={texture} alphaMap={feather} transparent toneMapped={false} color={[0.56, 0.56, 0.56]} />
         </mesh>
       )}
       <Atmosphere radius={r} color={project.atmosphere} active={active} />
