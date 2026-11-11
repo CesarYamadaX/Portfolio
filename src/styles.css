@@ -135,8 +135,14 @@ h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 
 .panel .note { font-size: 12px; }
 .icon-btn { width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: transparent; color: var(--text); cursor: pointer; }
 .icon-btn:hover { background: rgba(232, 238, 248, 0.1); }
-.panel__links { display: flex; flex-wrap: wrap; gap: 10px; }
-.panel__links .btn { flex: 1 1 160px; min-height: 46px; font-size: 14px; }
+.panel__links { display: flex; flex-direction: column; gap: 8px; }
+.repo { min-height: 56px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.03); color: var(--text); text-decoration: none; transition: border-color 0.2s, background 0.2s; }
+.repo:hover, .repo:focus-visible { border-color: var(--accent); background: rgba(77, 227, 255, 0.07); color: var(--text); }
+.repo__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.repo__text small { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-2); }
+.repo__text strong { font: 500 14px ui-monospace, 'Cascadia Code', Consolas, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.repo__arrow { color: var(--text-2); transition: color 0.2s, transform 0.2s; }
+.repo:hover .repo__arrow, .repo:focus-visible .repo__arrow { color: var(--accent); transform: translate(2px, -2px); }
 .panel__pager { margin-top: auto; padding-top: 6px; display: flex; justify-content: space-between; border-top: 1px solid rgba(232, 238, 248, 0.12); }
 .panel__pager button { min-height: 44px; border: 0; background: none; color: var(--text-2); font: 500 13px var(--font-body); cursor: pointer; }
 .panel__pager button:hover { color: var(--text); }

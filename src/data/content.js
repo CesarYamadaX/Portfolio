@@ -57,7 +57,7 @@ export const PROJECTS = [
     note: 'AT&T · Elektra · Telcel · Movistar · Liverpool · Coppel · Sears · Suburbia · Mercado Libre',
     stack: ['Python', 'Selenium', 'BeautifulSoup', 'requests', 'Scrapling', 'pandas', 'Web dashboard'],
     links: [
-      { label: 'Scraping repo', url: 'https://github.com/CesarYamadaX/Scrapping' },
+      { label: 'Scraping suite · source code', url: 'https://github.com/CesarYamadaX/Scrapping' },
     ],
     media: 'pricing',
     position: [-11, 0.5, -140],
@@ -73,7 +73,7 @@ export const PROJECTS = [
     description:
       'Answers database questions in plain language via text or voice note, with an animated mascot. It connects the WhatsApp API to an LLM through OpenRouter and queries SQL Server.',
     stack: ['Python', 'WhatsApp API', 'OpenRouter', 'SQL Server'],
-    links: [{ label: 'GitHub repo', url: 'https://github.com/CesarYamadaX/Honor-WhatsApp-Bot' }],
+    links: [{ label: 'Source code', url: 'https://github.com/CesarYamadaX/Honor-WhatsApp-Bot' }],
     media: 'whatsapp',
     position: [1, -5.5, -148],
     radius: 3.4,
@@ -88,7 +88,7 @@ export const PROJECTS = [
     description:
       'Team project for Development of Mathematical Engineering Projects (group 501), with a frontend and backend applying clustering. I was in charge of the dashboard.',
     stack: ['Clustering', 'Dashboard', 'Team project'],
-    links: [{ label: 'GitHub repo', url: 'https://github.com/4dr14nL0935/Pfizer-Clustering-Project' }],
+    links: [{ label: 'Source code', url: 'https://github.com/4dr14nL0935/Pfizer-Clustering-Project' }],
     media: 'pfizer',
     position: [11.5, 3, -142],
     radius: 3.1,
