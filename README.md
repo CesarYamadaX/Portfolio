@@ -78,12 +78,10 @@ Each project has a folder in `public/media/` and a `media.json` manifest in it:
 
 What happens with the list:
 
-- Planets show their own surface until one is opened. Zooming in fades the selected gallery item
-  onto the planet's face: a video plays muted and looping (desktop only); otherwise its poster is shown.
+- Planets always show their own surface; media is never drawn on them.
 - All items appear in the detail panel's gallery when the planet is opened. Videos start muted
   and looping, and show controls after a click; images open in a zoomable full-screen viewer.
-- An empty list (`"items": []`) is fine: the planet shows its own surface and the panel says
-  there is no media yet.
+- An empty list (`"items": []`) is fine: the panel says there is no media yet.
 
 Recommendations: 16:10 or 16:9 media, videos as `.webm` or `.mp4` under about 5 MB and
 10–20 seconds, posters as `.jpg` around 1280 px wide.
@@ -122,12 +120,10 @@ tools/generate_textures.py   Regenerates the textures and placeholders (optional
 - **Scroll and camera** — page scroll drives one progress value through GSAP ScrollTrigger
   (`scrub`), and the camera eases toward a smooth curve through five stops, so there are no cuts.
 - **Projects** — hover a planet for a tooltip, click to fly in and open its panel. The same
-  panels open from the project buttons in the Projects section, which is the keyboard and
-  touch path. `Esc` closes; arrow keys step through the gallery.
-- **Mobile** — fewer stars, lower resolution, no depth of field or god rays, and static posters
-  instead of video textures.
-- **Performance** — the 3D code is a separate lazy chunk; media loads only near a planet or in
-  an open panel; resolution drops automatically if the frame rate falls.
+  panels open from the project buttons in the Projects section, which appear on keyboard
+  focus. `Esc` closes; arrow keys step through the gallery.
+- **Mobile** — fewer stars, lower resolution, no god rays.
+- **Performance** — the 3D code is a separate lazy chunk; media loads only in an open panel; resolution drops automatically if the frame rate falls.
 - **Reduced motion** — with `prefers-reduced-motion`, WebGL is not started at all. Visitors get
   a still backdrop and the same content as a normal scrolling page.
 - **Sound** — ambient sound is synthesised in the browser, off by default, toggled from the
