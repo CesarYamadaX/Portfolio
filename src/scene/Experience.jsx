@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { PerformanceMonitor, useProgress, useTexture } from '@react-three/drei'
 import { Bloom, EffectComposer, GodRays, Noise, Vignette } from '@react-three/postprocessing'
-import { PROJECTS, PROJECT_VIEW, SUN_DIRECTION, WAYPOINTS } from '../data/content.js'
+import { PROJECT_VIEW, SUN_DIRECTION, WAYPOINTS, projectsFor } from '../data/content.js'
 import { scrollState, useStore } from '../state.js'
 import { HeroPlanet, Landing, Station } from './Bodies.jsx'
 import ProjectPlanet from './ProjectPlanet.jsx'
@@ -94,7 +94,7 @@ function CameraRig({ mobile }) {
     goal.pos.x += Math.sin(clock.elapsedTime * 0.13) * 0.35
     goal.pos.y += Math.cos(clock.elapsedTime * 0.11) * 0.25
 
-    const project = selected && PROJECTS.find((x) => x.id === selected)
+    const project = selected && projectsFor(mobile).find((x) => x.id === selected)
     if (project) {
       const r = project.radius
       goal.look.set(...project.position)
@@ -184,7 +184,7 @@ export default function Experience({ mobile }) {
         <Sun onReady={onSun} />
         <HeroPlanet segments={segments} />
         <Station />
-        {PROJECTS.map((p) => (
+        {projectsFor(mobile).map((p) => (
           <ProjectPlanet key={p.id} project={p} segments={segments} />
         ))}
         {/* on phones the skills are an HTML list; the 3D chart would sit right under the text */}

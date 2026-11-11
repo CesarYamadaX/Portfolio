@@ -61,6 +61,7 @@ export const PROJECTS = [
     ],
     media: 'pricing',
     position: [-11, 0.5, -140],
+    narrowPosition: [-1.6, 1.7, -146],
     radius: 4.2,
     texture: '/textures/planet-pricing.jpg',
     atmosphere: '#6fd8ff',
@@ -76,6 +77,7 @@ export const PROJECTS = [
     links: [{ label: 'Source code', url: 'https://github.com/CesarYamadaX/Honor-WhatsApp-Bot' }],
     media: 'whatsapp',
     position: [1, -5.5, -148],
+    narrowPosition: [1.6, -3.0, -146],
     radius: 3.4,
     texture: '/textures/planet-whatsapp.jpg',
     atmosphere: '#a9adff',
@@ -91,12 +93,20 @@ export const PROJECTS = [
     links: [{ label: 'Source code', url: 'https://github.com/4dr14nL0935/Pfizer-Clustering-Project' }],
     media: 'pfizer',
     position: [11.5, 3, -142],
+    narrowPosition: [-1.2, -7.15, -146],
     radius: 3.1,
     texture: '/textures/planet-pfizer.jpg',
     atmosphere: '#b8d1f2',
   },
 ]
 
+
+/**
+ * The projects as the scene should lay them out. Side by side they need a wide screen; on a
+ * narrow one they are stacked in a column and drawn a little smaller, so all three stay in view.
+ */
+const NARROW_PROJECTS = PROJECTS.map((p) => ({ ...p, position: p.narrowPosition, radius: p.radius * 0.5 }))
+export const projectsFor = (narrow) => (narrow ? NARROW_PROJECTS : PROJECTS)
 
 // Constellations: star coordinates are in a 1440x900 layout space (same as the design),
 // converted to world units in Constellations.jsx. Each group draws a figure: `lines` joins
