@@ -99,12 +99,18 @@ export const PROJECTS = [
 
 
 // Constellations: star coordinates are in a 1440x900 layout space (same as the design),
-// converted to world units in Constellations.jsx.
+// converted to world units in Constellations.jsx. Each group draws a figure: `lines` joins
+// stars by index, and a star with a null label is an unnamed one that only completes the shape.
 export const SKILLS = [
-  { name: 'Languages & ML', origin: [80, 230], closed: true, title: [150, 215], stars: [['Python', 60, 60], ['R', 190, 30], ['TensorFlow', 300, 110], ['scikit-learn', 150, 170]] },
-  { name: 'Data', origin: [520, 180], closed: false, title: [190, 235], stars: [['SQL Server', 50, 130], ['MySQL', 160, 50], ['MongoDB', 280, 90], ['Power BI', 330, 190]] },
-  { name: 'Web & cloud', origin: [950, 200], closed: true, title: [200, 240], stars: [['JavaScript', 40, 70], ['React', 140, 30], ['Flask', 240, 80], ['AWS', 340, 40], ['GCP', 320, 150], ['Git', 190, 180], ['LaTeX', 70, 190]] },
-  { name: 'AI & agents', origin: [230, 560], closed: false, title: [160, 175], stars: [['LangChain', 70, 60], ['Model Context Protocol (MCP)', 250, 120]] },
-  { name: 'Methods', origin: [780, 540], closed: true, title: [185, 225], stars: [['Predictive models', 50, 80], ['Clustering', 190, 40], ['Genetic algorithms', 320, 110], ['Markov chains', 170, 170]] },
+  // a kite with its tail
+  { name: 'Languages & ML', origin: [80, 215], title: [150, 285], stars: [['Python', 60, 90], ['R', 170, 20], ['TensorFlow', 290, 80], ['scikit-learn', 180, 150], [null, 160, 205], [null, 130, 245]], lines: [[0, 1], [1, 2], [2, 3], [3, 0], [1, 3], [3, 4], [4, 5]] },
+  // a ladle: handle on the left, bowl on the right
+  { name: 'Data', origin: [520, 170], title: [190, 235], stars: [['SQL Server', 30, 130], [null, 90, 85], ['MySQL', 150, 50], ['MongoDB', 230, 70], [null, 335, 55], ['Power BI', 345, 150], [null, 245, 160]], lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3]] },
+  // a W that trails into a hook
+  { name: 'Web & cloud', origin: [950, 190], title: [180, 290], stars: [['JavaScript', 20, 60], ['React', 100, 150], ['Flask', 180, 70], ['AWS', 260, 160], ['GCP', 340, 80], ['Git', 385, 165], ['LaTeX', 330, 235]], lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6]] },
+  // an arrow in flight
+  { name: 'AI & agents', origin: [230, 580], title: [150, 175], stars: [['LangChain', 60, 90], [null, 170, 90], ['Model Context Protocol (MCP)', 280, 90], [null, 232, 50], [null, 232, 130], [null, 18, 58], [null, 18, 122]], lines: [[0, 1], [1, 2], [2, 3], [2, 4], [0, 5], [0, 6]] },
+  // a lyre: a slanted box hanging from one bright star
+  { name: 'Methods', origin: [780, 545], title: [185, 245], stars: [['Predictive models', 60, 150], ['Clustering', 150, 90], ['Genetic algorithms', 250, 120], ['Markov chains', 160, 185], [null, 215, 20]], lines: [[0, 1], [1, 2], [2, 3], [3, 0], [4, 1], [4, 2]] },
 ]
 export const SKILLS_PLANE_Z = -208
