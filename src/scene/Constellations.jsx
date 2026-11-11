@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html, Line } from '@react-three/drei'
 import { SKILLS, SKILLS_PLANE_Z } from '../data/content.js'
 import { scrollState } from '../state.js'
+import { useDistanceFade } from './Bodies.jsx'
 
 // Layout space (1440x900, y down) -> world units on the constellation plane.
 const toWorld = (px, py, depth = 0) => [(px - 720) / 45, (450 - py) / 45, SKILLS_PLANE_Z + depth]
@@ -11,6 +12,8 @@ const toWorld = (px, py, depth = 0) => [(px - 720) / 45, (450 - py) / 45, SKILLS
 export default function Constellations({ mobile }) {
   // HTML labels are only mounted while the camera is around the Skills stop.
   const [labels, setLabels] = useState(false)
+  const root = useRef()
+  useDistanceFade(root, 84, 46, [0, 0, SKILLS_PLANE_Z])
   useFrame(() => {
     const show = scrollState.progress > 0.6 && scrollState.progress < 0.9
     if (show !== labels) setLabels(show)
@@ -31,7 +34,9 @@ export default function Constellations({ mobile }) {
     [],
   )
 
-  return groups.map((g) => (
+  return (
+    <group ref={root}>
+      {groups.map((g) => (
     <group key={g.name}>
       <Line points={g.points} color="#bed7f5" transparent opacity={0.28} lineWidth={1} />
       {g.stars.map((s) => (
@@ -52,5 +57,7 @@ export default function Constellations({ mobile }) {
         </Html>
       )}
     </group>
-  ))
+      ))}
+    </group>
+  )
 }
