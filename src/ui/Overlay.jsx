@@ -180,6 +180,7 @@ export function Sections({ media }) {
           <div>
             <p className="eyebrow">Sky chart 03 · Skills</p>
             <h2 tabIndex={-1}>Five constellations</h2>
+            <p className="muted skills-hint">Hover a constellation to see its skills.</p>
           </div>
           {/* Visible as a list on mobile / reduced motion; on desktop the 3D labels show the same
               text, so this list is kept for assistive tech only (see .skill-list in styles.css). */}
