@@ -80,7 +80,7 @@ export function Nav() {
     <>
       <header className="nav">
         <a className="nav__brand" href="#hero" onClick={(e) => (e.preventDefault(), goTo('hero'))}>
-          {OWNER.name}
+          Cedayaxo
         </a>
         <nav aria-label="Sections">
           {SECTIONS.map((s, i) => (
@@ -231,17 +231,31 @@ export function Tooltip() {
   const ref = useRef()
   const pointer = useRef({ x: 0, y: 0 })
 
+  // Sits beside the pointer on whichever side has room, so it never runs off the screen.
+  const place = () => {
+    const el = ref.current
+    if (!el) return
+    const { x, y } = pointer.current
+    const gap = 18
+    const edge = 12
+    const w = el.offsetWidth
+    const h = el.offsetHeight
+    const left = x + gap + w > window.innerWidth - edge ? x - gap - w : x + gap
+    const top = y + gap + h > window.innerHeight - edge ? y - gap - h : y + gap
+    el.style.transform = `translate(${Math.max(edge, left)}px, ${Math.max(edge, top)}px)`
+  }
+
   useEffect(() => {
     const move = (e) => {
       pointer.current = { x: e.clientX, y: e.clientY }
-      if (ref.current) ref.current.style.transform = `translate(${e.clientX + 18}px, ${e.clientY + 18}px)`
+      place()
     }
     window.addEventListener('pointermove', move, { passive: true })
     return () => window.removeEventListener('pointermove', move)
   }, [])
   useEffect(() => {
     document.body.style.cursor = hovered ? 'pointer' : ''
-    if (ref.current) ref.current.style.transform = `translate(${pointer.current.x + 18}px, ${pointer.current.y + 18}px)`
+    place()
   }, [hovered])
 
   if (!hovered || selected || scrollState.progress < 0.3) return null
