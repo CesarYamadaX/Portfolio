@@ -54,14 +54,18 @@ export default function Constellations({ mobile }) {
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
       <Line points={g.points} segments color="#bed7f5" transparent opacity={0.4} lineWidth={hovered === g.name ? 2.2 : 1.2} />
-      {g.stars.map((s) => (
+      {g.stars.map((s, i) => (
         <mesh key={s.position.join()} position={s.position}>
           <sphereGeometry args={[s.size, 12, 12]} />
           {/* values above 1 so bloom picks the stars up */}
           <meshBasicMaterial color={[2.2, 2.4, 3]} toneMapped={false} />
-          {labels && !mobile && s.label && hovered === g.name && (
+          {/* Always mounted near the stop; the inner span carries the animation (drei sets its own
+              inline transform on the wrapper), fading each name in one after another (see styles.css). */}
+          {labels && !mobile && s.label && (
             <Html className="star-label" position={[0.25, 0, 0]} zIndexRange={[2, 0]}>
-              {s.label}
+              <span className={hovered === g.name ? 'is-on' : undefined} style={{ '--i': i }}>
+                {s.label}
+              </span>
             </Html>
           )}
         </mesh>

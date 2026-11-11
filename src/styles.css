@@ -38,7 +38,10 @@ h1:focus, h2:focus { outline: none; }
 
 /* labels drawn by the scene on the Skills stop */
 .star-label, .constellation-title { pointer-events: none; white-space: nowrap; user-select: none; }
-.star-label { font-size: 12px; color: var(--text); text-shadow: 0 1px 6px #000; transform: translateY(-50%); }
+.star-label { font-size: 12px; color: var(--text); text-shadow: 0 1px 6px #000; }
+.star-label span { display: block; opacity: 0; filter: blur(4px); transform: translate(-10px, -50%); transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease; }
+/* names drift in from their star one after another; they leave together, without the stagger */
+.star-label span.is-on { opacity: 1; filter: none; transform: translate(0, -50%); transition-duration: 0.45s; transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1); transition-delay: calc(var(--i) * 70ms); }
 .constellation-title { font-family: var(--font-display); font-weight: 700; font-size: 17px; color: var(--accent); text-shadow: 0 1px 8px #000; }
 
 /* ------------------------------------------------------------------
