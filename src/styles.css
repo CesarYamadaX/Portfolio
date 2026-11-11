@@ -111,7 +111,9 @@ h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 
 /* Contact */
 .stop--contact .stop__inner { align-items: center; justify-content: flex-start; padding-top: 18vh; text-align: center; }
 .stop--contact h2 { font-size: clamp(40px, 5.4vw, 72px); }
-.stop--contact .actions { justify-content: center; }
+.socials { display: flex; justify-content: center; gap: 22px; margin-top: 8px; }
+.socials a { width: 68px; height: 68px; display: grid; place-items: center; border-radius: 50%; border: 1px solid rgba(232, 238, 248, 0.3); background: rgba(6, 11, 22, 0.55); color: var(--text); transition: color 0.2s, border-color 0.2s, transform 0.2s; }
+.socials a:hover, .socials a:focus-visible { color: var(--accent); border-color: var(--accent); transform: translateY(-3px); }
 
 /* ------------------------------------------------------------------
    Tooltip, detail panel, gallery, lightbox
