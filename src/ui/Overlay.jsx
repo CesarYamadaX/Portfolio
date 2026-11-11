@@ -188,9 +188,7 @@ export function Sections({ media }) {
               <div key={g.name}>
                 <h3>{g.name}</h3>
                 <ul>
-                  {g.stars.map(([label]) => (
-                    <li key={label}>{label}</li>
-                  ))}
+                  {g.stars.map(([label]) => label && <li key={label}>{label}</li>)}
                 </ul>
               </div>
             ))}
