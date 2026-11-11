@@ -155,7 +155,7 @@ export function Sections({ media }) {
           <div>
             <p className="eyebrow">System 02 · Projects</p>
             <h2 tabIndex={-1}>Each world is its project</h2>
-            <p className="muted">Click a planet to zoom in and watch the project's recording play on its surface.</p>
+            <p className="muted">Click a planet to zoom in and open the project.</p>
           </div>
           {/* Same panels as clicking a planet. Hidden until a button gets keyboard focus, so nothing covers
               the planets; always visible in the static (reduced motion) page, which has no planets. */}

@@ -1,5 +1,5 @@
 {
   "items": [
-    { "src": "analysis.webm", "type": "video", "poster": "analysis-poster.jpg", "caption": "Figures from the team's analysis: segments, profiles, trends, correlations and the classifier's confusion matrix" }
+    { "src": "dashboard.webm", "type": "video", "poster": "dashboard-poster.jpg", "caption": "The Streamlit dashboard: segmentation overview, model performance, probability map and counterfactual scenarios" }
   ]
 }

@@ -79,7 +79,7 @@ const view = new THREE.Vector3(...PROJECT_VIEW)
 /**
  * Camera rig. Scroll progress picks a point on the route; the camera eases toward it
  * every frame, so movement is always smooth. Selecting a project overrides the route
- * and flies in until the planet's media fills most of the view.
+ * and flies in until the planet fills most of the view.
  */
 function CameraRig({ mobile }) {
   const selected = useStore((s) => s.selected)
@@ -151,7 +151,7 @@ function LoadingBridge() {
   return null
 }
 
-export default function Experience({ mobile, media }) {
+export default function Experience({ mobile }) {
   const [dpr, setDpr] = useState(mobile ? 1.5 : 2)
   const [sun, setSun] = useState(null)
   const onSun = useCallback((m) => setSun(m), [])
@@ -185,7 +185,7 @@ export default function Experience({ mobile, media }) {
         <HeroPlanet segments={segments} />
         <Station />
         {PROJECTS.map((p) => (
-          <ProjectPlanet key={p.id} project={p} items={media[p.id] || []} mobile={mobile} segments={segments} />
+          <ProjectPlanet key={p.id} project={p} segments={segments} />
         ))}
         {/* on phones the skills are an HTML list; the 3D chart would sit right under the text */}
         {!mobile && <Constellations mobile={mobile} />}

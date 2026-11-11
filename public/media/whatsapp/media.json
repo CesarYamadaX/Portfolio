@@ -1,5 +1,6 @@
 {
   "items": [
+    { "src": "panel.webm", "type": "video", "poster": "panel-poster.jpg", "caption": "The bot's control panel running on a demo service with made-up people and figures: conversations, the steps behind an answer, a live question, and user management" },
     { "src": "assistant.webm", "type": "video", "poster": "assistant-poster.jpg", "caption": "Re-created conversation with sample figures: a question, the answer from SQL, and the Excel export" }
   ]
 }
