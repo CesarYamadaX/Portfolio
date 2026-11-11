@@ -2,13 +2,47 @@ import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
-import { HERO_PLANET, LANDING, MOONS, PROJECTS, STATION_POSITION, SUN_DIRECTION } from '../data/content.js'
-import { useStore } from '../state.js'
+import { HERO_PLANET, LANDING, STATION_POSITION, SUN_DIRECTION } from '../data/content.js'
 
 const SUN = new THREE.Vector3(...SUN_DIRECTION).normalize()
 const srgb = (t) => {
   t.colorSpace = THREE.SRGBColorSpace
   t.anisotropy = 4
+}
+
+const fadeCenter = new THREE.Vector3()
+
+/**
+ * Fades an object in as the camera approaches: invisible beyond `start`, fully there
+ * within `full` (world units). The route is one long corridor, so without this every
+ * later stop would already be visible, stacked up behind the current one.
+ */
+export function useDistanceFade(ref, start, full, center) {
+  const last = useRef(-1)
+  useFrame(({ camera }) => {
+    const obj = ref.current
+    if (!obj) return
+    if (center) fadeCenter.set(...center)
+    else obj.getWorldPosition(fadeCenter)
+    const o = THREE.MathUtils.smoothstep(start - camera.position.distanceTo(fadeCenter), 0, start - full)
+    obj.visible = o > 0.005
+    if (!obj.visible) return (last.current = o)
+    // re-apply every visible frame: children (media patch, labels) can mount at any time
+    obj.traverse((child) => {
+      const m = child.material
+      if (!m) return
+      if (m.uniforms?.uOpacity) m.uniforms.uOpacity.value = o
+      else {
+        if (m.userData.baseOpacity === undefined) m.userData.baseOpacity = m.opacity
+        if (!m.transparent) {
+          m.transparent = true
+          m.needsUpdate = true
+        }
+        m.opacity = m.userData.baseOpacity * o
+      }
+    })
+    last.current = o
+  })
 }
 
 /**
@@ -24,6 +58,7 @@ export function Atmosphere({ radius, color, scale = 1.07, active = false }) {
           uSun: { value: SUN },
           uEdge: { value: Math.sqrt(1 - 1 / (scale * scale)) },
           uBoost: { value: 1 },
+          uOpacity: { value: 1 },
         },
         vertexShader: /* glsl */ `
           varying vec3 vViewNormal;
@@ -34,13 +69,13 @@ export function Atmosphere({ radius, color, scale = 1.07, active = false }) {
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
           }`,
         fragmentShader: /* glsl */ `
-          uniform vec3 uColor; uniform vec3 uSun; uniform float uEdge; uniform float uBoost;
+          uniform vec3 uColor; uniform vec3 uSun; uniform float uEdge; uniform float uBoost; uniform float uOpacity;
           varying vec3 vViewNormal; varying vec3 vWorldNormal;
           void main() {
             // 0 at the outer edge of the shell, 1 where it meets the planet's limb
             float d = clamp(-vViewNormal.z / uEdge, 0.0, 1.0);
             float sun = clamp(dot(vWorldNormal, uSun) * 0.9 + 0.5, 0.06, 1.0);
-            gl_FragColor = vec4(uColor * pow(d, 2.4) * sun * uBoost, 1.0);
+            gl_FragColor = vec4(uColor * pow(d, 2.4) * sun * uBoost * uOpacity, 1.0);
           }`,
         side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
@@ -80,6 +115,7 @@ export function HeroPlanet({ segments }) {
 export function Station() {
   const ring = useRef()
   const whole = useRef()
+  useDistanceFade(whole, 62, 34)
   useFrame((_, dt) => {
     ring.current.rotation.z += dt * 0.12
     whole.current.rotation.y += dt * 0.02
@@ -136,48 +172,22 @@ export function Station() {
   )
 }
 
-function Moon({ moon }) {
-  const ref = useRef()
-  const map = useTexture('/textures/moon.jpg', srgb)
-  const hover = useStore((s) => s.hover)
-  const center = PROJECTS.find((p) => p.id === moon.orbits).position
-  useFrame(({ clock }) => {
-    const a = clock.elapsedTime * moon.speed + moon.phase
-    ref.current.position.set(
-      center[0] + Math.cos(a) * moon.distance,
-      center[1] + Math.sin(a * 0.7) * moon.distance * 0.25,
-      center[2] + Math.sin(a) * moon.distance,
-    )
-    ref.current.rotation.y = a * 0.6
-  })
-  return (
-    <mesh
-      ref={ref}
-      onPointerOver={(e) => (e.stopPropagation(), hover(`moon:${moon.name}`))}
-      onPointerOut={() => hover(null)}
-      onClick={(e) => (e.stopPropagation(), window.open(moon.url, '_blank', 'noopener'))}
-    >
-      <sphereGeometry args={[moon.radius, 24, 24]} />
-      <meshStandardMaterial map={map} roughness={1} />
-    </mesh>
-  )
-}
-
-export function Moons() {
-  return MOONS.map((m) => <Moon key={m.name} moon={m} />)
-}
-
 /** The world we land on at the end: a large sphere seen from low orbit. */
 export function Landing({ mobile }) {
   const map = useTexture(mobile ? '/textures/planet-pricing.jpg' : '/textures/planet-landing.jpg', srgb)
   const ref = useRef()
+  const group = useRef()
+  useDistanceFade(group, 136, 100)
   useFrame((_, dt) => (ref.current.rotation.y += dt * 0.004))
   return (
-    <group position={LANDING.position}>
-      <mesh ref={ref} rotation={[0.4, 0, 0]}>
-        <sphereGeometry args={[LANDING.radius, mobile ? 64 : 128, mobile ? 64 : 128]} />
-        <meshStandardMaterial map={map} roughness={0.9} />
-      </mesh>
+    <group ref={group} position={LANDING.position}>
+      {/* tip the planet on its side: otherwise its white polar cap is exactly what the camera lands over */}
+      <group rotation={[0, 0, Math.PI / 2]}>
+        <mesh ref={ref}>
+          <sphereGeometry args={[LANDING.radius, mobile ? 64 : 128, mobile ? 64 : 128]} />
+          <meshStandardMaterial map={map} roughness={0.9} />
+        </mesh>
+      </group>
       <Atmosphere radius={LANDING.radius} color={LANDING.atmosphere} scale={1.03} />
     </group>
   )

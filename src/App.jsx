@@ -1,4 +1,6 @@
 import { lazy, Suspense } from 'react'
+import { useEffect } from 'react'
+import { useStore } from './state.js'
 import { useAmbientAudio, useManifests, useProfile, useScrollJourney } from './hooks.js'
 import { Loader, Nav, Sections, Tooltip } from './ui/Overlay.jsx'
 import ProjectPanel from './ui/ProjectPanel.jsx'
@@ -13,6 +15,9 @@ export default function App() {
   const animated = !profile.reducedMotion
   useScrollJourney(animated)
   useAmbientAudio()
+  // while a project is zoomed in, the section copy and brand step aside (see styles.css)
+  const zoomed = useStore((s) => Boolean(s.selected))
+  useEffect(() => void document.body.classList.toggle('is-zoomed', zoomed), [zoomed])
 
   return (
     <>

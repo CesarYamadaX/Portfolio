@@ -1,3 +1,5 @@
 {
-  "items": []
+  "items": [
+    { "src": "dashboard.webm", "type": "video", "poster": "dashboard-poster.jpg", "caption": "The Streamlit dashboard: segmentation overview, model performance, probability map and counterfactual scenarios" }
+  ]
 }

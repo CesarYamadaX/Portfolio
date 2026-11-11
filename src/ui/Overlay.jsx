@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { MOONS, OWNER, PROJECTS, SECTIONS, SKILLS } from '../data/content.js'
+import { OWNER, PROJECTS, SECTIONS, SKILLS } from '../data/content.js'
 import { scrollState, useStore } from '../state.js'
 
 const Icon = {
   arrow: <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>,
-  mail: <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>,
-  code: <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5" /></svg>,
-  person: <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c1-4 4-6 8-6s7 2 8 6" /></svg>,
+  mail: <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>,
+  github: <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .31.21.68.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" /></svg>,
+  linkedin: <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>,
   soundOff: <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" /><path d="m16 9 5 6M21 9l-5 6" /></svg>,
   soundOn: <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" /><path d="M15.5 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" /></svg>,
 }
@@ -63,16 +63,24 @@ export function Nav() {
       const y = window.scrollY + window.innerHeight * 0.4
       setCurrent(Math.max(0, tops.findLastIndex((t) => y >= t)))
     }
-    onScroll()
+    // measure after the first layout too (section offsets are all 0 before styles apply), and on resize
+    const frame = requestAnimationFrame(onScroll)
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    window.addEventListener('resize', onScroll)
+    window.addEventListener('load', onScroll)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      window.removeEventListener('load', onScroll)
+    }
   }, [])
 
   return (
     <>
       <header className="nav">
         <a className="nav__brand" href="#hero" onClick={(e) => (e.preventDefault(), goTo('hero'))}>
-          {OWNER.name}
+          Cedayaxo
         </a>
         <nav aria-label="Sections">
           {SECTIONS.map((s, i) => (
@@ -147,9 +155,10 @@ export function Sections({ media }) {
           <div>
             <p className="eyebrow">System 02 · Projects</p>
             <h2 tabIndex={-1}>Each world is its project</h2>
-            <p className="muted">The project's media is mapped onto the planet. Hover to preview, click to zoom in.</p>
+            <p className="muted">Choose a planet to zoom in and open its project.</p>
           </div>
-          {/* Keyboard- and touch-friendly way to open the same panels as clicking a planet */}
+          {/* Same panels as clicking a planet. Hidden until a button gets keyboard focus, so nothing covers
+              the planets; always visible in the static (reduced motion) page, which has no planets. */}
           <div className="project-list">
             <ul>
               {PROJECTS.map((p) => (
@@ -162,14 +171,6 @@ export function Sections({ media }) {
                 </li>
               ))}
             </ul>
-            <p className="moons">
-              <span className="label">Moons</span>
-              {MOONS.map((m) => (
-                <a key={m.name} href={m.url} target="_blank" rel="noopener noreferrer" title={m.about}>
-                  {m.name}
-                </a>
-              ))}
-            </p>
           </div>
         </div>
       </section>
@@ -179,6 +180,7 @@ export function Sections({ media }) {
           <div>
             <p className="eyebrow">Sky chart 03 · Skills</p>
             <h2 tabIndex={-1}>Five constellations</h2>
+            <p className="muted skills-hint">Hover a constellation to see its skills.</p>
           </div>
           {/* Visible as a list on mobile / reduced motion; on desktop the 3D labels show the same
               text, so this list is kept for assistive tech only (see .skill-list in styles.css). */}
@@ -187,9 +189,7 @@ export function Sections({ media }) {
               <div key={g.name}>
                 <h3>{g.name}</h3>
                 <ul>
-                  {g.stars.map(([label]) => (
-                    <li key={label}>{label}</li>
-                  ))}
+                  {g.stars.map(([label]) => label && <li key={label}>{label}</li>)}
                 </ul>
               </div>
             ))}
@@ -206,15 +206,15 @@ export function Sections({ media }) {
             Let's talk.
           </h2>
           <p className="lead">Open to conversations about AI agents, machine learning on real-world data, and optimization for decision support.</p>
-          <div className="actions">
-            <a className="btn btn--primary" href={`mailto:${OWNER.links.email}`}>
-              {Icon.mail} {OWNER.links.email}
+          <div className="socials">
+            <a href={`mailto:${OWNER.links.email}`} aria-label={`Email ${OWNER.links.email}`} title={OWNER.links.email}>
+              {Icon.mail}
             </a>
-            <a className="btn" href={OWNER.links.github} target="_blank" rel="noopener noreferrer">
-              {Icon.code} GitHub
+            <a href={OWNER.links.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+              {Icon.github}
             </a>
-            <a className="btn" href={OWNER.links.linkedin} target="_blank" rel="noopener noreferrer">
-              {Icon.person} LinkedIn
+            <a href={OWNER.links.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
+              {Icon.linkedin}
             </a>
           </div>
         </div>
@@ -223,35 +223,48 @@ export function Sections({ media }) {
   )
 }
 
-/** Follows the pointer and describes the hovered planet or moon. */
+/** Follows the pointer and describes the hovered planet. */
 export function Tooltip() {
   const hovered = useStore((s) => s.hovered)
   const selected = useStore((s) => s.selected)
   const ref = useRef()
   const pointer = useRef({ x: 0, y: 0 })
 
+  // Sits beside the pointer on whichever side has room, so it never runs off the screen.
+  const place = () => {
+    const el = ref.current
+    if (!el) return
+    const { x, y } = pointer.current
+    const gap = 18
+    const edge = 12
+    const w = el.offsetWidth
+    const h = el.offsetHeight
+    const left = x + gap + w > window.innerWidth - edge ? x - gap - w : x + gap
+    const top = y + gap + h > window.innerHeight - edge ? y - gap - h : y + gap
+    el.style.transform = `translate(${Math.max(edge, left)}px, ${Math.max(edge, top)}px)`
+  }
+
   useEffect(() => {
     const move = (e) => {
       pointer.current = { x: e.clientX, y: e.clientY }
-      if (ref.current) ref.current.style.transform = `translate(${e.clientX + 18}px, ${e.clientY + 18}px)`
+      place()
     }
     window.addEventListener('pointermove', move, { passive: true })
     return () => window.removeEventListener('pointermove', move)
   }, [])
   useEffect(() => {
     document.body.style.cursor = hovered ? 'pointer' : ''
-    if (ref.current) ref.current.style.transform = `translate(${pointer.current.x + 18}px, ${pointer.current.y + 18}px)`
+    place()
   }, [hovered])
 
   if (!hovered || selected || scrollState.progress < 0.3) return null
-  const moon = hovered.startsWith('moon:') && MOONS.find((m) => `moon:${m.name}` === hovered)
   const project = PROJECTS.find((p) => p.id === hovered)
-  if (!moon && !project) return null
+  if (!project) return null
   return (
     <div ref={ref} className="tooltip" role="tooltip">
-      <strong>{moon ? moon.name : project.name}</strong>
-      <span>{moon ? moon.about : project.short}</span>
-      <em>{moon ? 'Click to open on GitHub' : 'Click to zoom in'}</em>
+      <strong>{project.name}</strong>
+      <span>{project.short}</span>
+      <em>Click to zoom in</em>
     </div>
   )
 }
