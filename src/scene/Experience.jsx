@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import * as THREE from 'three'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { PerformanceMonitor, useProgress, useTexture } from '@react-three/drei'
-import { Bloom, DepthOfField, EffectComposer, GodRays, Noise, Vignette } from '@react-three/postprocessing'
+import { Bloom, EffectComposer, GodRays, Noise, Vignette } from '@react-three/postprocessing'
 import { PROJECTS, PROJECT_VIEW, SUN_DIRECTION, WAYPOINTS } from '../data/content.js'
 import { scrollState, useStore } from '../state.js'
 import { HeroPlanet, Landing, Moons, Station } from './Bodies.jsx'
@@ -10,7 +10,7 @@ import ProjectPlanet from './ProjectPlanet.jsx'
 import Constellations from './Constellations.jsx'
 
 const SUN = new THREE.Vector3(...SUN_DIRECTION).normalize()
-const lookTarget = new THREE.Vector3(...WAYPOINTS[0].look) // shared with depth of field
+const lookTarget = new THREE.Vector3(...WAYPOINTS[0].look)
 
 /** Milky Way backdrop: one image on a huge inside-out sphere that follows the camera. */
 function Sky() {
@@ -120,10 +120,8 @@ function CameraRig({ mobile }) {
   return null
 }
 
-/** Bloom, film grain, vignette everywhere; depth of field and god rays on desktop only. */
+/** Bloom, film grain, vignette everywhere; god rays on desktop only. */
 function Effects({ mobile, sun }) {
-  const dof = useRef()
-  useFrame(() => dof.current?.target?.copy(lookTarget)) // keep whatever we look at in focus
   if (mobile) {
     return (
       <EffectComposer multisampling={0}>
@@ -136,7 +134,6 @@ function Effects({ mobile, sun }) {
   return (
     <EffectComposer multisampling={0}>
       {sun && <GodRays sun={sun} samples={48} density={0.94} decay={0.93} weight={0.5} exposure={0.4} clampMax={1} blur />}
-      <DepthOfField ref={dof} target={WAYPOINTS[0].look} worldFocusRange={70} bokehScale={3} />
       <Bloom intensity={0.8} luminanceThreshold={0.78} luminanceSmoothing={0.15} mipmapBlur />
       <Noise opacity={0.045} />
       <Vignette offset={0.25} darkness={0.75} />
@@ -178,6 +175,9 @@ export default function Experience({ mobile, media }) {
       {/* faint cool fill, standing in for light scattered by the nebula */}
       <directionalLight position={[40, 15, 80]} intensity={0.45} color="#8fb4ff" />
 
+      {/* soft local fill at the About stop, so the back-lit station keeps some detail */}
+      <pointLight position={[6, -3, -48]} intensity={1.3} decay={0} distance={55} color="#cfe0ff" />
+
       <Suspense fallback={null}>
         <Sky />
         <Stars count={mobile ? 1500 : 6000} />
@@ -188,7 +188,8 @@ export default function Experience({ mobile, media }) {
           <ProjectPlanet key={p.id} project={p} items={media[p.id] || []} mobile={mobile} segments={segments} />
         ))}
         <Moons />
-        <Constellations mobile={mobile} />
+        {/* on phones the skills are an HTML list; the 3D chart would sit right under the text */}
+        {!mobile && <Constellations mobile={mobile} />}
         <Landing mobile={mobile} />
         <Effects mobile={mobile} sun={sun} />
       </Suspense>

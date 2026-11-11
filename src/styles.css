@@ -210,3 +210,8 @@ h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Project zoomed in: the planet and its panel own the screen. */
+.stop__inner, .nav__brand, .nav nav { transition: opacity 0.35s ease; }
+body.is-zoomed .stop__inner { opacity: 0; pointer-events: none; }
+body.is-zoomed .nav__brand, body.is-zoomed .nav nav { opacity: 0; pointer-events: none; }

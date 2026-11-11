@@ -36,11 +36,11 @@ export const WAYPOINTS = [
   { pos: [2, 0, -55], look: [-9, 5.5, -68] },
   { pos: [0, 1, -108], look: [0, 0, -142] },
   { pos: [0, 0, -178], look: [0, 0, -208] },
-  { pos: [0, 4, -262], look: [0, -6, -300] },
+  { pos: [0, 4, -262], look: [0, 1.5, -300] },
 ]
 
 export const HERO_PLANET = { position: [11, -3, -36], radius: 7, texture: '/textures/planet-hero.jpg', atmosphere: '#6fd8ff' }
-export const STATION_POSITION = [-12.3, 7.2, -67]
+export const STATION_POSITION = [-14.5, 4.2, -65]
 export const LANDING = { position: [0, -66, -300], radius: 60, atmosphere: '#6fd8ff' }
 
 // Project planets face this point (the Projects camera stop) so their media is visible.
