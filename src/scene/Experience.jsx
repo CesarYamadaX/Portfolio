@@ -179,8 +179,10 @@ function Sun({ onReady }) {
   )
 }
 
-const positionCurve = new THREE.CatmullRomCurve3(WAYPOINTS.map((w) => new THREE.Vector3(...w.pos)), false, 'catmullrom', 0.35)
-const lookCurve = new THREE.CatmullRomCurve3(WAYPOINTS.map((w) => new THREE.Vector3(...w.look)), false, 'catmullrom', 0.35)
+const curve = (points) => new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)), false, 'catmullrom', 0.35)
+// the route, as [position curve, look-at curve]; narrow screens take their own line where a stop defines one
+const ROUTE = [curve(WAYPOINTS.map((w) => w.pos)), curve(WAYPOINTS.map((w) => w.look))]
+const NARROW_ROUTE = [curve(WAYPOINTS.map((w) => w.narrowPos ?? w.pos)), curve(WAYPOINTS.map((w) => w.narrowLook ?? w.look))]
 const UP = new THREE.Vector3(0, 1, 0)
 const view = new THREE.Vector3(...PROJECT_VIEW)
 
@@ -196,6 +198,7 @@ function CameraRig({ mobile }) {
 
   useFrame(({ camera, clock }, dt) => {
     const p = THREE.MathUtils.clamp(scrollState.progress, 0, 1)
+    const [positionCurve, lookCurve] = mobile ? NARROW_ROUTE : ROUTE
     positionCurve.getPoint(p, goal.pos)
     lookCurve.getPoint(p, goal.look)
     // slow idle drift so the scene never feels frozen
@@ -272,10 +275,13 @@ export default function Experience({ mobile }) {
       camera={{ fov: 45, near: 0.1, far: 5000, position: WAYPOINTS[0].pos }}
       gl={{ antialias: false, powerPreference: 'high-performance' }}
       onPointerMissed={() => hover(null)}
+      // the canvas is fixed to the viewport, so there is nothing to re-measure while the page scrolls
+      resize={{ scroll: false }}
     >
       <color attach="background" args={["#010204"]} />
       {/* drop resolution if the frame rate cannot hold, to stay near 60 fps */}
-      <PerformanceMonitor onDecline={() => setDpr(1)} onIncline={() => setDpr(mobile ? 1.5 : 2)} />
+      {/* a phone that had to step down stays down: every switch reallocates the buffers, which shows as a hitch */}
+      <PerformanceMonitor onDecline={() => setDpr(1)} onIncline={() => !mobile && setDpr(2)} />
       <LoadingBridge />
 
       <ambientLight intensity={0.22} />
