@@ -170,10 +170,10 @@ export default function Experience({ mobile }) {
       <PerformanceMonitor onDecline={() => setDpr(1)} onIncline={() => setDpr(mobile ? 1.5 : 2)} />
       <LoadingBridge />
 
-      <ambientLight intensity={0.07} />
+      <ambientLight intensity={0.22} />
       <directionalLight position={SUN.clone().multiplyScalar(100)} intensity={3.4} color="#fff3e2" />
       {/* faint cool fill, standing in for light scattered by the nebula */}
-      <directionalLight position={[40, 15, 80]} intensity={0.45} color="#8fb4ff" />
+      <directionalLight position={[40, 15, 80]} intensity={1.0} color="#8fb4ff" />
 
       {/* soft local fill at the About stop, so the back-lit station keeps some detail */}
       <pointLight position={[6, -3, -48]} intensity={1.3} decay={0} distance={55} color="#cfe0ff" />

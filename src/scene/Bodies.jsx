@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
-import { useTexture } from '@react-three/drei'
+import { useGLTF, useTexture } from '@react-three/drei'
 import { HERO_PLANET, LANDING, STATION_POSITION, SUN_DIRECTION } from '../data/content.js'
 
 const SUN = new THREE.Vector3(...SUN_DIRECTION).normalize()
@@ -111,63 +111,30 @@ export function HeroPlanet({ segments }) {
   )
 }
 
-/** Orbiting station for the About stop: a slowly turning habitat ring on a truss with solar wings. */
+/**
+ * Orbiting station for the About stop: a textured 3D model (public/models/station.glb)
+ * that turns slowly so its solar wings catch the sun.
+ */
 export function Station() {
-  const ring = useRef()
   const whole = useRef()
+  const { scene } = useGLTF(`${import.meta.env.BASE_URL}models/station.glb`)
+  useMemo(() => {
+    scene.traverse((child) => {
+      if (!child.isMesh) return
+      // the scene has no environment map, and fully metallic surfaces would render black without one
+      child.material.metalness = 0.3
+      child.material.roughness = 0.7
+      child.material.metalnessMap = null
+      child.material.envMapIntensity = 0
+    })
+  }, [scene])
   useDistanceFade(whole, 62, 34)
-  useFrame((_, dt) => {
-    ring.current.rotation.z += dt * 0.12
-    whole.current.rotation.y += dt * 0.02
-  })
-  const hull = <meshStandardMaterial color="#aeb4bd" roughness={0.55} metalness={0.35} />
-  const panel = <meshStandardMaterial color="#12264d" roughness={0.35} metalness={0.5} emissive="#0a1630" emissiveIntensity={0.4} />
+  useFrame((_, dt) => (whole.current.rotation.y += dt * 0.03))
   return (
-    <group ref={whole} position={STATION_POSITION} rotation={[0.35, 0.7, -0.2]} scale={1.15}>
-      {/* truss */}
-      <mesh rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.09, 0.09, 9, 8]} />
-        {hull}
-      </mesh>
-      {/* solar wings */}
-      {[-3.6, 3.6].map((x) => (
-        <group key={x} position={[x, 0, 0]}>
-          <mesh position={[0, 1.25, 0]}>
-            <boxGeometry args={[1.5, 2.1, 0.04]} />
-            {panel}
-          </mesh>
-          <mesh position={[0, -1.25, 0]}>
-            <boxGeometry args={[1.5, 2.1, 0.04]} />
-            {panel}
-          </mesh>
-        </group>
-      ))}
-      {/* habitat ring with spokes */}
-      <group ref={ring}>
-        <mesh>
-          <torusGeometry args={[1.7, 0.2, 14, 64]} />
-          {hull}
-        </mesh>
-        {[0, Math.PI / 2].map((r) => (
-          <mesh key={r} rotation={[0, 0, r]}>
-            <cylinderGeometry args={[0.05, 0.05, 3.4, 6]} />
-            {hull}
-          </mesh>
-        ))}
+    <group position={STATION_POSITION} rotation={[0.35, 0, -0.2]}>
+      <group ref={whole} rotation={[0, 0.7, 0]}>
+        <primitive object={scene} scale={10} />
       </group>
-      {/* core module and antenna */}
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.45, 0.45, 1.5, 24]} />
-        {hull}
-      </mesh>
-      <mesh position={[0, 0, 1.3]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.02, 0.02, 1.2, 6]} />
-        {hull}
-      </mesh>
-      <mesh position={[0, 0, 1.95]}>
-        <sphereGeometry args={[0.06, 12, 12]} />
-        <meshBasicMaterial color={[1.5, 3.4, 4]} toneMapped={false} />
-      </mesh>
     </group>
   )
 }
@@ -188,7 +155,7 @@ export function Landing({ mobile }) {
           <meshStandardMaterial map={map} roughness={0.9} />
         </mesh>
       </group>
-      <Atmosphere radius={LANDING.radius} color={LANDING.atmosphere} scale={1.03} />
+      <Atmosphere radius={LANDING.radius} color="#7fb6e8" scale={1.014} />
     </group>
   )
 }
