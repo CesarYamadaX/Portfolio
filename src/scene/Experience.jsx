@@ -17,7 +17,7 @@ const lookTarget = new THREE.Vector3(...WAYPOINTS[0].look)
 const SKY_TILT = [0.2, 0, -0.5]
 const SKY_TURN = [0, Math.PI / 2 - 0.62, 0]
 
-/** Milky Way backdrop: one image on a huge inside-out sphere that follows the camera. */
+/** Backdrop: black space with only a faint, colourless trace of the galactic band, on a sphere that follows the camera. */
 function Sky() {
   const ref = useRef()
   const map = useTexture(`${import.meta.env.BASE_URL}textures/sky.jpg`, (t) => {
@@ -30,7 +30,7 @@ function Sky() {
     <group ref={ref} rotation={SKY_TILT}>
       <mesh rotation={SKY_TURN} renderOrder={-10}>
         <sphereGeometry args={[2400, 64, 40]} />
-        <meshBasicMaterial map={map} side={THREE.BackSide} depthWrite={false} toneMapped={false} color="#a8a8a8" />
+        <meshBasicMaterial map={map} side={THREE.BackSide} depthWrite={false} toneMapped={false} color="#5c5c5c" />
       </mesh>
     </group>
   )
@@ -91,8 +91,8 @@ function Stars({ far, near }) {
     const c = new THREE.Color()
     for (let i = 0; i < count; i++) {
       positions.set(place(), i * 3)
-      const m = Math.random() ** 9 // "magnitude": almost always near 0, rarely near 1
-      sizes[i] = (1.1 + m * 9 + Math.random() * 0.9) * sizeBoost
+      const m = Math.random() ** 12 // "magnitude": almost always near 0, rarely near 1
+      sizes[i] = (1.0 + m * 7 + Math.random() * 0.8) * sizeBoost
       // bell-shaped pick, so white and pale yellow dominate
       const t = (Math.random() + Math.random() + Math.random()) / 3
       c.copy(STAR_TINTS[Math.min(STAR_TINTS.length - 1, Math.floor(t * STAR_TINTS.length))])
@@ -260,7 +260,7 @@ export default function Experience({ mobile }) {
       gl={{ antialias: false, powerPreference: 'high-performance' }}
       onPointerMissed={() => hover(null)}
     >
-      <color attach="background" args={['#03060d']} />
+      <color attach="background" args={["#010204"]} />
       {/* drop resolution if the frame rate cannot hold, to stay near 60 fps */}
       <PerformanceMonitor onDecline={() => setDpr(1)} onIncline={() => setDpr(mobile ? 1.5 : 2)} />
       <LoadingBridge />
