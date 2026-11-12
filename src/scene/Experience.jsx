@@ -14,6 +14,14 @@ const lookTarget = new THREE.Vector3(...WAYPOINTS[0].look)
 
 // Orientation of the whole sky (image + far stars). The inner turn brings the galactic core
 // ahead of the flight path, slightly to the right; the outer one tilts the band across the view.
+// 0..1: how much the backdrop steps back around the Skills stop, so the constellations
+// are the only bright things on screen there.
+const skillsDim = () => {
+  const p = scrollState.progress
+  return THREE.MathUtils.smoothstep(p, 0.56, 0.68) * (1 - THREE.MathUtils.smoothstep(p, 0.84, 0.95))
+}
+
+const SKY_LEVEL = 0.107 // brightness of the faint galactic band (linear)
 const SKY_TILT = [0.2, 0, -0.5]
 const SKY_TURN = [0, Math.PI / 2 - 0.62, 0]
 
@@ -25,12 +33,16 @@ function Sky() {
     t.wrapS = THREE.RepeatWrapping
     t.anisotropy = 8
   })
-  useFrame(({ camera }) => ref.current.position.copy(camera.position))
+  const material = useRef()
+  useFrame(({ camera }) => {
+    ref.current.position.copy(camera.position)
+    material.current.color.setScalar(SKY_LEVEL * (1 - skillsDim()))
+  })
   return (
     <group ref={ref} rotation={SKY_TILT}>
       <mesh rotation={SKY_TURN} renderOrder={-10}>
         <sphereGeometry args={[2400, 64, 40]} />
-        <meshBasicMaterial map={map} side={THREE.BackSide} depthWrite={false} toneMapped={false} color="#5c5c5c" />
+        <meshBasicMaterial ref={material} map={map} side={THREE.BackSide} depthWrite={false} toneMapped={false} />
       </mesh>
     </group>
   )
@@ -41,15 +53,15 @@ const STAR_TINTS = ['#ffb38a', '#ffd2a1', '#fff1dc', '#ffffff', '#dbe7ff', '#b5c
 
 const starMaterial = () =>
   new THREE.ShaderMaterial({
-    uniforms: { uTime: { value: 0 }, uScale: { value: 1 } },
+    uniforms: { uTime: { value: 0 }, uScale: { value: 1 }, uLevel: { value: 1 } },
     vertexShader: /* glsl */ `
       attribute float aSize; attribute float aPhase;
-      uniform float uTime; uniform float uScale;
+      uniform float uTime; uniform float uScale; uniform float uLevel;
       varying vec3 vColor; varying float vSize;
       void main() {
         // gentle scintillation, stronger on the brighter stars
         float twinkle = 1.0 + 0.22 * sin(uTime * (0.6 + fract(aPhase * 7.3) * 1.8) + aPhase * 6.2831) * smoothstep(1.2, 3.0, aSize);
-        vColor = color * twinkle;
+        vColor = color * twinkle * uLevel;
         vSize = aSize;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         gl_PointSize = max(aSize * uScale, 1.0);
@@ -141,6 +153,7 @@ function Stars({ far, near }) {
     shell.current.position.copy(camera.position)
     material.uniforms.uTime.value = clock.elapsedTime
     material.uniforms.uScale.value = gl.getPixelRatio()
+    material.uniforms.uLevel.value = 1 - 0.7 * skillsDim()
   })
   return (
     <>

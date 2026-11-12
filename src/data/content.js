@@ -120,9 +120,9 @@ export const SKILLS = [
   // a ladle: handle on the left, bowl on the right
   { name: 'Data', origin: [520, 170], title: [190, 235], stars: [['SQL Server', 30, 130], [null, 90, 85], ['MySQL', 150, 50], ['MongoDB', 230, 70], [null, 335, 55], ['Power BI', 345, 150], [null, 245, 160]], lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3]] },
   // a W that trails into a hook
-  { name: 'Web & cloud', origin: [950, 190], title: [180, 290], stars: [['JavaScript', 20, 60], ['React', 100, 150], ['Flask', 180, 70], ['AWS', 260, 160], ['GCP', 340, 80], ['Git', 385, 165], ['LaTeX', 330, 235]], lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6]] },
+  { name: 'Web & cloud', origin: [950, 190], title: [150, 315], stars: [['JavaScript', 20, 60], ['React', 100, 150], ['Flask', 180, 70], ['AWS', 260, 160], ['GCP', 340, 80], ['Git', 385, 165], ['LaTeX', 330, 235], ['RESTful APIs', 240, 262]], lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7]] },
   // an arrow in flight
-  { name: 'AI & agents', origin: [230, 580], title: [150, 175], stars: [['LangChain', 60, 90], [null, 170, 90], ['Model Context Protocol (MCP)', 280, 90], [null, 232, 50], [null, 232, 130], [null, 18, 58], [null, 18, 122]], lines: [[0, 1], [1, 2], [2, 3], [2, 4], [0, 5], [0, 6]] },
+  { name: 'AI & agents', origin: [230, 580], title: [190, 175], stars: [['LangChain', 40, 90], ['LangGraph', 190, 90], ['Model Context Protocol (MCP)', 340, 90], [null, 292, 50], [null, 292, 130], [null, -2, 58], [null, -2, 122]], lines: [[0, 1], [1, 2], [2, 3], [2, 4], [0, 5], [0, 6]] },
   // a lyre: a slanted box hanging from one bright star
   { name: 'Methods', origin: [780, 545], title: [185, 245], stars: [['Predictive models', 60, 150], ['Clustering', 150, 90], ['Genetic algorithms', 250, 120], ['Markov chains', 160, 185], [null, 215, 20]], lines: [[0, 1], [1, 2], [2, 3], [3, 0], [4, 1], [4, 2]] },
 ]
