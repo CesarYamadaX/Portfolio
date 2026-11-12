@@ -21,7 +21,7 @@ export const OWNER = {
 }
 
 export const SECTIONS = [
-  { id: 'hero', label: 'Hero' },
+  { id: 'hero', label: 'Intro' },
   { id: 'about', label: 'About' },
   { id: 'projects', label: 'Projects' },
   { id: 'skills', label: 'Skills' },

@@ -99,58 +99,37 @@ export function useScrollJourney(enabled) {
   }, [enabled])
 }
 
+const MUSIC_VOLUME = 0.16 // background level: present, but well under any other audio on the visitor's machine
+
 /**
- * Optional ambient sound, synthesised with the Web Audio API so there is no audio file to load.
- * Nothing is created until the visitor turns sound on.
+ * Optional background music (public/audio/space-ambient.mp3), looped at a low volume.
+ * The file is not requested until the visitor turns sound on; it fades in and out
+ * rather than cutting, and the same element is reused if sound is toggled again.
  */
 export function useAmbientAudio() {
   const audioOn = useStore((s) => s.audioOn)
   useEffect(() => {
     if (!audioOn) return
-    const Ctx = window.AudioContext || window.webkitAudioContext
-    if (!Ctx) return
-    const ctx = new Ctx()
-    const master = ctx.createGain()
-    master.gain.value = 0
-    master.connect(ctx.destination)
-    master.gain.linearRampToValueAtTime(0.07, ctx.currentTime + 2.5)
-
-    // two slow, slightly detuned drones
-    const oscs = [55, 82.6, 110.4].map((f, i) => {
-      const o = ctx.createOscillator()
-      const g = ctx.createGain()
-      o.type = 'sine'
-      o.frequency.value = f
-      g.gain.value = [0.5, 0.3, 0.12][i]
-      o.connect(g).connect(master)
-      o.start()
-      return o
-    })
-    // soft filtered noise, like distant air
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate)
-    const data = buffer.getChannelData(0)
-    let last = 0
-    for (let i = 0; i < data.length; i++) {
-      last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02
-      data[i] = last * 3.5
+    const el = (useAmbientAudio.el ??= Object.assign(new Audio(`${import.meta.env.BASE_URL}audio/space-ambient.mp3`), { loop: true, preload: 'auto' }))
+    let frame
+    const fadeTo = (target, ms, then) => {
+      cancelAnimationFrame(frame)
+      const from = el.volume
+      const start = performance.now()
+      const step = (now) => {
+        const t = Math.min(1, (now - start) / ms)
+        el.volume = from + (target - from) * t
+        if (t < 1) frame = requestAnimationFrame(step)
+        else then?.()
+      }
+      frame = requestAnimationFrame(step)
     }
-    const noise = ctx.createBufferSource()
-    noise.buffer = buffer
-    noise.loop = true
-    const filter = ctx.createBiquadFilter()
-    filter.type = 'lowpass'
-    filter.frequency.value = 420
-    noise.connect(filter).connect(master)
-    noise.start()
-
+    let on = true
+    el.volume = 0
+    el.play().then(() => on && fadeTo(MUSIC_VOLUME, 1800)).catch(() => {}) // playback can be refused; the page works the same without it
     return () => {
-      master.gain.cancelScheduledValues(ctx.currentTime)
-      master.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.4)
-      setTimeout(() => {
-        oscs.forEach((o) => o.stop())
-        noise.stop()
-        ctx.close()
-      }, 500)
+      on = false
+      fadeTo(0, 500, () => el.pause())
     }
   }, [audioOn])
 }
