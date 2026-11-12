@@ -174,7 +174,7 @@ export function Station() {
 
 /** The world we land on at the end: a large sphere seen from low orbit. */
 export function Landing({ mobile }) {
-  const map = useTexture(mobile ? '/textures/planet-pricing.jpg' : '/textures/planet-landing.jpg', srgb)
+  const map = useTexture(`${import.meta.env.BASE_URL}textures/${mobile ? 'planet-pricing' : 'planet-landing'}.jpg`, srgb)
   const ref = useRef()
   const group = useRef()
   useDistanceFade(group, 136, 100)

@@ -1,5 +1,8 @@
 // All site copy and scene layout live here, so content edits never touch scene code.
 
+// Public files are addressed through the build's base path, so the site also works under a sub-path.
+const BASE = import.meta.env.BASE_URL
+
 export const OWNER = {
   name: 'César Yamada',
   title: 'Data / AI Engineer · BI Specialist at Honor México',
@@ -39,7 +42,7 @@ export const WAYPOINTS = [
   { pos: [0, 4, -262], look: [0, 1.5, -300] },
 ]
 
-export const HERO_PLANET = { position: [11, -3, -36], radius: 7, texture: '/textures/planet-hero.jpg', atmosphere: '#6fd8ff' }
+export const HERO_PLANET = { position: [11, -3, -36], radius: 7, texture: `${BASE}textures/planet-hero.jpg`, atmosphere: '#6fd8ff' }
 export const STATION_POSITION = [-14.5, 4.2, -65]
 export const LANDING = { position: [0, -66, -300], radius: 60, atmosphere: '#6fd8ff' }
 
@@ -63,7 +66,7 @@ export const PROJECTS = [
     position: [-11, 0.5, -140],
     narrowPosition: [-1.6, 1.7, -146],
     radius: 4.2,
-    texture: '/textures/planet-pricing.jpg',
+    texture: `${BASE}textures/planet-pricing.jpg`,
     atmosphere: '#6fd8ff',
   },
   {
@@ -79,7 +82,7 @@ export const PROJECTS = [
     position: [1, -5.5, -148],
     narrowPosition: [1.6, -3.0, -146],
     radius: 3.4,
-    texture: '/textures/planet-whatsapp.jpg',
+    texture: `${BASE}textures/planet-whatsapp.jpg`,
     atmosphere: '#a9adff',
   },
   {
@@ -95,7 +98,7 @@ export const PROJECTS = [
     position: [11.5, 3, -142],
     narrowPosition: [-1.2, -7.15, -146],
     radius: 3.1,
-    texture: '/textures/planet-pfizer.jpg',
+    texture: `${BASE}textures/planet-pfizer.jpg`,
     atmosphere: '#b8d1f2',
   },
 ]

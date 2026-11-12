@@ -34,6 +34,12 @@ npm run preview
 If `npm install` fails with `407 Proxy Authentication Required`, your network proxy needs
 credentials; configure them for npm (or install from a network without the proxy) and retry.
 
+## Deploy to GitHub Pages
+
+`.github/workflows/deploy.yml` builds the site and publishes it on every push to `main`.
+One-time setup: in the repository, open **Settings → Pages** and set **Source** to **GitHub Actions**.
+The site is then served at `https://<user>.github.io/<repo>/`.
+
 ## Deploy to Vercel
 
 1. Push this folder to a GitHub repository.

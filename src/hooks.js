@@ -31,10 +31,10 @@ export function useManifests() {
   const [media, setMedia] = useState(() => Object.fromEntries(PROJECTS.map((p) => [p.id, []])))
   useEffect(() => {
     let alive = true
-    const resolve = (folder, path) => (!path || /^(https?:)?\//.test(path) ? path : `/media/${folder}/${path}`)
+    const resolve = (folder, path) => (!path || /^(https?:)?\//.test(path) ? path : `${import.meta.env.BASE_URL}media/${folder}/${path}`)
     Promise.all(
       PROJECTS.map((p) =>
-        fetch(`/media/${p.media}/media.json`)
+        fetch(`${import.meta.env.BASE_URL}media/${p.media}/media.json`)
           .then((r) => (r.ok ? r.json() : { items: [] }))
           .catch(() => ({ items: [] }))
           .then((json) => [

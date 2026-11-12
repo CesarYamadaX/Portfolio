@@ -15,7 +15,7 @@ const lookTarget = new THREE.Vector3(...WAYPOINTS[0].look)
 /** Milky Way backdrop: one image on a huge inside-out sphere that follows the camera. */
 function Sky() {
   const ref = useRef()
-  const map = useTexture('/textures/sky.jpg', (t) => {
+  const map = useTexture(`${import.meta.env.BASE_URL}textures/sky.jpg`, (t) => {
     t.colorSpace = THREE.SRGBColorSpace
     t.wrapS = THREE.MirroredRepeatWrapping // mirror so the image has no visible seam
     t.repeat.set(2, 1)

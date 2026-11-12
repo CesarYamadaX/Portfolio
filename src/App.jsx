@@ -34,7 +34,7 @@ export default function App() {
       ) : (
         // prefers-reduced-motion: no WebGL at all, just a still backdrop behind normal page flow
         <div className="stage stage--static" aria-hidden="true">
-          <img src="/img/planet-hero.webp" alt="" />
+          <img src={`${import.meta.env.BASE_URL}img/planet-hero.webp`} alt="" />
         </div>
       )}
 
