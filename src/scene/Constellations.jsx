@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
+import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { Html, Line } from '@react-three/drei'
 import { SKILLS, SKILLS_PLANE_Z } from '../data/content.js'
@@ -16,9 +17,19 @@ export default function Constellations({ mobile }) {
   const [hovered, setHovered] = useState(null)
   const root = useRef()
   useDistanceFade(root, 84, 46, [0, 0, SKILLS_PLANE_Z])
+  const labelOpacity = useRef(-1)
   useFrame(() => {
-    const show = scrollState.progress > 0.6 && scrollState.progress < 0.9
+    // The names are HTML, so distance fading does not reach them: fade them with scroll instead.
+    // They are gone shortly after leaving the Skills stop (0.75), before the camera flies through the chart.
+    const p = scrollState.progress
+    const o = THREE.MathUtils.smoothstep(p, 0.62, 0.7) * (1 - THREE.MathUtils.smoothstep(p, 0.765, 0.8))
+    const show = o > 0.01
     if (show !== labels) setLabels(show)
+    const rounded = Math.round(o * 50) / 50
+    if (rounded !== labelOpacity.current) {
+      labelOpacity.current = rounded
+      document.documentElement.style.setProperty('--skills-labels', rounded)
+    }
   })
 
   const groups = useMemo(
