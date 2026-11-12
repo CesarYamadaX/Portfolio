@@ -73,6 +73,8 @@ export function useScrollJourney(enabled) {
       return
     }
     gsap.registerPlugin(ScrollTrigger)
+    // phones resize the window whenever the address bar slides away; re-measuring the journey then makes the scroll stutter
+    ScrollTrigger.config({ ignoreMobileResize: true })
     const clamp = (v) => Math.max(0, Math.min(1, v))
     const apply = () => {
       const p = scrollState.progress * (sections.length - 1)

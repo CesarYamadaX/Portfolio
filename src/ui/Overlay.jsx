@@ -20,6 +20,61 @@ function goTo(id) {
   el.querySelector('h1, h2')?.focus({ preventScroll: true })
 }
 
+/**
+ * The Skills chart for phones: the same five figures as the 3D chart, stacked in one column
+ * with every name beside its star (there is no hover on a touch screen). Drawn as SVG, in its
+ * own units: CHART_W across, and as tall as the figures need.
+ */
+const CHART_W = 500
+const CHART_FONT = 20
+const SKY_CHART = (() => {
+  let top = 0
+  const groups = SKILLS.map((g) => {
+    const stars = g.stars.map(([label, x, y, side = 'right']) => {
+      const sy = y * 0.8 // slightly flattened, so five figures fit a phone screen
+      const w = (label?.length ?? 0) * CHART_FONT * 0.53 // estimated text width
+      // where the name sits: right of the star by default, or centred below it
+      const text = side === 'below' ? { x, y: sy + 26, anchor: 'middle', min: x - w / 2, max: x + w / 2 } : { x: x + 12, y: sy, anchor: 'start', min: x, max: x + 12 + w }
+      return { label, x, y: sy, text }
+    })
+    const minX = Math.min(...stars.map((s) => Math.min(s.x, s.text.min)))
+    const maxX = Math.max(...stars.map((s) => Math.max(s.x, s.text.max)))
+    const minY = Math.min(...stars.map((s) => s.y))
+    const maxY = Math.max(...stars.map((s) => Math.max(s.y, s.label ? s.text.y : s.y)))
+    const dx = (CHART_W - (maxX - minX)) / 2 - minX // centre the figure, names included
+    const dy = top + 38 - minY // the group's title sits above the figure
+    const group = { name: g.name, titleY: top + 16, dx, dy, stars, path: g.lines.map(([a, b]) => `M${stars[a].x} ${stars[a].y}L${stars[b].x} ${stars[b].y}`).join('') }
+    top += 38 + (maxY - minY) + 30
+    return group
+  })
+  return { groups, height: top - 16 }
+})()
+
+function SkyChart() {
+  return (
+    <svg className="sky-chart" aria-hidden="true" viewBox={`0 0 ${CHART_W} ${SKY_CHART.height}`} preserveAspectRatio="xMidYMin meet">
+      {SKY_CHART.groups.map((g) => (
+        <g key={g.name}>
+          <text className="sky-chart__title" x={0} y={g.titleY}>
+            {g.name}
+          </text>
+          <g transform={`translate(${g.dx} ${g.dy})`}>
+            <path d={g.path} />
+            {g.stars.map((s) => (
+              <circle key={`${s.x} ${s.y}`} cx={s.x} cy={s.y} r={s.label ? 4 : 2.6} />
+            ))}
+            {g.stars.map((s) => s.label && (
+              <text key={s.label} x={s.text.x} y={s.text.y} textAnchor={s.text.anchor} dominantBaseline="central">
+                {s.label}
+              </text>
+            ))}
+          </g>
+        </g>
+      ))}
+    </svg>
+  )
+}
+
 /** Full-screen loading screen with a progress bar; fades out when textures are ready. */
 export function Loader() {
   const { progress, done } = useStore((s) => s.loading)
@@ -182,7 +237,9 @@ export function Sections({ media }) {
             <h2 tabIndex={-1}>Five constellations</h2>
             <p className="muted skills-hint">Hover a constellation to see its skills.</p>
           </div>
-          {/* Visible as a list on mobile / reduced motion; on desktop the 3D labels show the same
+          {/* phones get the chart as a flat drawing; the 3D one would not fit a narrow screen */}
+          <SkyChart />
+          {/* Visible as a list with reduced motion; otherwise the chart labels show the same
               text, so this list is kept for assistive tech only (see .skill-list in styles.css). */}
           <div className="skill-list">
             {SKILLS.map((g) => (
