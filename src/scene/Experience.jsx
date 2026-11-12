@@ -12,48 +12,143 @@ import Constellations from './Constellations.jsx'
 const SUN = new THREE.Vector3(...SUN_DIRECTION).normalize()
 const lookTarget = new THREE.Vector3(...WAYPOINTS[0].look)
 
+// Orientation of the whole sky (image + far stars). The inner turn brings the galactic core
+// ahead of the flight path, slightly to the right; the outer one tilts the band across the view.
+const SKY_TILT = [0.2, 0, -0.5]
+const SKY_TURN = [0, Math.PI / 2 - 0.62, 0]
+
 /** Milky Way backdrop: one image on a huge inside-out sphere that follows the camera. */
 function Sky() {
   const ref = useRef()
   const map = useTexture(`${import.meta.env.BASE_URL}textures/sky.jpg`, (t) => {
     t.colorSpace = THREE.SRGBColorSpace
-    t.wrapS = THREE.MirroredRepeatWrapping // mirror so the image has no visible seam
-    t.repeat.set(2, 1)
+    t.wrapS = THREE.RepeatWrapping
+    t.anisotropy = 8
   })
   useFrame(({ camera }) => ref.current.position.copy(camera.position))
   return (
-    <mesh ref={ref} rotation={[0.3, 1.2, 0.2]} renderOrder={-10}>
-      <sphereGeometry args={[2400, 48, 32]} />
-      <meshBasicMaterial map={map} side={THREE.BackSide} depthWrite={false} toneMapped={false} color="#c8ccd6" />
-    </mesh>
+    <group ref={ref} rotation={SKY_TILT}>
+      <mesh rotation={SKY_TURN} renderOrder={-10}>
+        <sphereGeometry args={[2400, 64, 40]} />
+        <meshBasicMaterial map={map} side={THREE.BackSide} depthWrite={false} toneMapped={false} color="#a8a8a8" />
+      </mesh>
+    </group>
   )
 }
 
-/** Foreground stars scattered along the route; they give parallax as the camera travels. */
-function Stars({ count }) {
-  const geometry = useMemo(() => {
+// Star colours by temperature, from cool red dwarfs to hot blue-white stars (most stars sit in the middle).
+const STAR_TINTS = ['#ffb38a', '#ffd2a1', '#fff1dc', '#ffffff', '#dbe7ff', '#b5ccff', '#9db8ff'].map((c) => new THREE.Color(c))
+
+const starMaterial = () =>
+  new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uScale: { value: 1 } },
+    vertexShader: /* glsl */ `
+      attribute float aSize; attribute float aPhase;
+      uniform float uTime; uniform float uScale;
+      varying vec3 vColor; varying float vSize;
+      void main() {
+        // gentle scintillation, stronger on the brighter stars
+        float twinkle = 1.0 + 0.22 * sin(uTime * (0.6 + fract(aPhase * 7.3) * 1.8) + aPhase * 6.2831) * smoothstep(1.2, 3.0, aSize);
+        vColor = color * twinkle;
+        vSize = aSize;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        gl_PointSize = max(aSize * uScale, 1.0);
+      }`,
+    fragmentShader: /* glsl */ `
+      varying vec3 vColor; varying float vSize;
+      void main() {
+        vec2 p = gl_PointCoord - 0.5;
+        float d = length(p) * 2.0;
+        // tight bright core with a soft halo; big stars also get faint diffraction spikes
+        float core = exp(-d * d * 9.0);
+        float halo = pow(max(1.0 - d, 0.0), 3.0) * 0.35;
+        float spikes = (exp(-abs(p.x) * 60.0) + exp(-abs(p.y) * 60.0)) * max(1.0 - d, 0.0) * smoothstep(5.0, 9.0, vSize) * 0.6;
+        float a = core + halo + spikes;
+        if (a < 0.01) discard;
+        gl_FragColor = vec4(vColor * a, 1.0);
+      }`,
+    vertexColors: true,
+    blending: THREE.AdditiveBlending,
+    transparent: true,
+    depthWrite: false,
+    toneMapped: false,
+  })
+
+/**
+ * Stars. Two layers share one draw call:
+ * - a far shell that follows the camera, denser along the Milky Way band of the sky image;
+ * - nearer stars along the route, which drift past and give parallax as the camera travels.
+ * Sizes follow a steep power law (thousands of faint points, a handful of bright ones with halos).
+ */
+function Stars({ far, near }) {
+  const shell = useRef()
+  const material = useMemo(starMaterial, [])
+  const build = (count, place, sizeBoost) => {
     const positions = new Float32Array(count * 3)
     const colors = new Float32Array(count * 3)
-    const warm = new THREE.Color('#ffd9b0')
-    const cool = new THREE.Color('#bcd4ff')
+    const sizes = new Float32Array(count)
+    const phases = new Float32Array(count)
     const c = new THREE.Color()
     for (let i = 0; i < count; i++) {
-      // a wide tube around the flight path, hollow in the middle so stars never hit the camera
-      const angle = Math.random() * Math.PI * 2
-      const radius = 40 + Math.random() ** 0.7 * 420
-      positions.set([Math.cos(angle) * radius, Math.sin(angle) * radius, 150 - Math.random() * 700], i * 3)
-      c.copy(warm).lerp(cool, Math.random()).multiplyScalar(0.35 + Math.random() ** 3 * 1.6)
+      positions.set(place(), i * 3)
+      const m = Math.random() ** 9 // "magnitude": almost always near 0, rarely near 1
+      sizes[i] = (1.1 + m * 9 + Math.random() * 0.9) * sizeBoost
+      // bell-shaped pick, so white and pale yellow dominate
+      const t = (Math.random() + Math.random() + Math.random()) / 3
+      c.copy(STAR_TINTS[Math.min(STAR_TINTS.length - 1, Math.floor(t * STAR_TINTS.length))])
+      c.multiplyScalar(0.3 + Math.random() * 0.55 + m * 2.4) // the brightest go above 1 and bloom
       colors.set([c.r, c.g, c.b], i * 3)
+      phases[i] = Math.random()
     }
     const g = new THREE.BufferGeometry()
     g.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     g.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+    g.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1))
+    g.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1))
     return g
-  }, [count])
+  }
+  const farGeometry = useMemo(
+    () =>
+      build(
+        far,
+        () => {
+          // 60% hug the galactic plane (the sky sphere's equator), the rest are spread evenly
+          const band = Math.random() < 0.6
+          const y = band ? THREE.MathUtils.clamp((Math.random() + Math.random() + Math.random() - 1.5) * 0.33, -1, 1) : Math.random() * 2 - 1
+          const a = Math.random() * Math.PI * 2
+          const r = Math.sqrt(1 - y * y) * 2000
+          return [Math.cos(a) * r, y * 2000, Math.sin(a) * r]
+        },
+        1,
+      ),
+    [far],
+  )
+  const nearGeometry = useMemo(
+    () =>
+      build(
+        near,
+        () => {
+          // a wide tube around the flight path, hollow in the middle so stars never hit the camera
+          const a = Math.random() * Math.PI * 2
+          const r = 60 + Math.random() ** 0.7 * 420
+          return [Math.cos(a) * r, Math.sin(a) * r, 150 - Math.random() * 700]
+        },
+        1.15,
+      ),
+    [near],
+  )
+  useFrame(({ camera, clock, gl }) => {
+    shell.current.position.copy(camera.position)
+    material.uniforms.uTime.value = clock.elapsedTime
+    material.uniforms.uScale.value = gl.getPixelRatio()
+  })
   return (
-    <points geometry={geometry} frustumCulled={false}>
-      <pointsMaterial size={1.6} sizeAttenuation={false} vertexColors transparent depthWrite={false} toneMapped={false} />
-    </points>
+    <>
+      <group ref={shell} rotation={SKY_TILT}>
+        <points geometry={farGeometry} material={material} rotation={SKY_TURN} frustumCulled={false} renderOrder={-9} />
+      </group>
+      <points geometry={nearGeometry} material={material} frustumCulled={false} />
+    </>
   )
 }
 
@@ -180,7 +275,7 @@ export default function Experience({ mobile }) {
 
       <Suspense fallback={null}>
         <Sky />
-        <Stars count={mobile ? 1500 : 6000} />
+        <Stars far={mobile ? 3500 : 9000} near={mobile ? 500 : 1400} />
         <Sun onReady={onSun} />
         <HeroPlanet segments={segments} />
         <Station />
